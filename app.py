@@ -63,6 +63,24 @@ def logout():
     session.pop('role', None)
     return redirect(url_for('login'))
 
+@app.route('/create_user')
+def create_user():
+    return render_template('create_user.html')
+
+@app.route('/add_user', methods=['POST'])
+def add_user():
+    username = request.form['username']
+    password = request.form['password']
+    role = request.form['role']
+
+    # Create a new user in the database
+    new_user = Users(username=username, password=password, role=role)
+    db.session.add(new_user)
+    db.session.commit()
+
+    return redirect(url_for('users'))
+    #return render_template('menu.html')
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
