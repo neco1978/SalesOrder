@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update User</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <div id="main">
+        <h2>Update User</h2>
+        <form action="/update_user/{{ user.username }}" method="post" onsubmit="submitForm(event)">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required><br>
+
+            <label for="role">Role:</label>
+            <select id="role" name="role" required>
+                <option value="USER">USER</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="MONITORING">MONITORING</option>
+            </select><br>
+
+            <input type="submit" value="Update User">
+        </form>
+    </div>
+
+    <script>
+        function submitForm(event) {
+            event.preventDefault(); // Prevent the default form submission behavior
+
+            var formData = new FormData(document.getElementById('updateUserForm'));
+
+            $.ajax({
+                url: '/update_user/{{ user.username }}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    alert(response);
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

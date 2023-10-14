@@ -81,6 +81,26 @@ def add_user():
     return redirect(url_for('users'))
     #return render_template('menu.html')
 
+@app.route('/update_user/<username>', methods=['POST'])
+def update_user(username):
+    password = request.form['password']
+    role = request.form['role']
+
+    user = Users.query.filter_by(username=username).first()
+    if user:
+        user.update_user(password, role)
+        return 'User updated successfully', 200
+    else:
+        return 'User not found', 404
+
+@app.route('/update_user/<username>')
+def update_user_page(username):
+    user = Users.query.filter_by(username=username).first()
+    if user:
+        return render_template('update_user.html', user=user)
+    else:
+        return 'User not found', 404
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
