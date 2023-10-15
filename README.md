@@ -44,7 +44,7 @@ This is a simple Sales Order Management System implemented using Flask and Postg
 ## Contributing
 Pull requests and bug reports are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-##Technical Details
+## Technical Details
 The project you've been working on follows a basic web application design pattern using the Flask framework for Python. Here's a breakdown of the design pattern:
 
 1. Model-View-Controller (MVC):
