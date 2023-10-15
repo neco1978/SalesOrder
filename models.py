@@ -9,6 +9,6 @@ class Users(db.Model):
     role = db.Column(db.String(50), nullable=False)
 
     def update_user(self, password, role):
-    self.password = password
-    self.role = role
-    db.session.commit()
+      self.password = password
+      self.role = role
+      db.session.commit()
