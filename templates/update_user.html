@@ -2,44 +2,88 @@
 <html>
 <head>
     <title>Update User</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+        }
+
+        #main {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #444;
+        }
+
+        .role-select {
+           width: 100%;
+           padding: 8px;
+           margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
 
     <div id="main">
         <h2>Update User</h2>
-        <form action="/update_user/{{ user.username }}" method="post" onsubmit="submitForm(event)">
+        <form id="updateUserForm">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" value="{{ user.username }}" readonly><br>
+
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required><br>
 
             <label for="role">Role:</label>
-            <select id="role" name="role" required>
-                <option value="USER">USER</option>
-                <option value="ADMIN">ADMIN</option>
-                <option value="MONITORING">MONITORING</option>
+            <select id="role" name="role" required class="role-select">
+                <option value="USER" {% if user.role == 'USER' %}selected{% endif %}>USER</option>
+                <option value="ADMIN" {% if user.role == 'ADMIN' %}selected{% endif %}>ADMIN</option>
+                <option value="MONITORING" {% if user.role == 'MONITORING' %}selected{% endif %}>MONITORING</option>
             </select><br>
 
             <input type="submit" value="Update User">
         </form>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function submitForm(event) {
-            event.preventDefault(); // Prevent the default form submission behavior
+    $(document).ready(function() {
+        $('#updateUserForm').submit(function(event) {
+            event.preventDefault();
 
-            var formData = new FormData(document.getElementById('updateUserForm'));
+            var formData = $(this).serialize();
 
             $.ajax({
-                url: '/update_user/{{ user.username }}',
+                url: '/update_user/{{ user.username }}',  // Include the username in the URL
                 type: 'POST',
                 data: formData,
-                processData: false,
-                contentType: false,
                 success: function(response) {
                     alert(response);
                 }
             });
-        }
+        });
+    });
     </script>
 
 </body>
