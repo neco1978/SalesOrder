@@ -1,0 +1,66 @@
+<!-- create_product.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Product</title>
+    <style>
+        /* Your existing styles for create_product form */
+    </style>
+</head>
+<body>
+    <div id="main">
+        <h2>Create Product</h2>
+        <form id="createProductForm">
+            <label for="productCode">Product Code:</label>
+            <input type="text" id="productCode" name="productCode" required><br>
+
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required><br>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" required></textarea><br>
+
+            <label for="unitPrice">Unit Price:</label>
+            <input type="text" id="unitPrice" name="unitPrice" required><br>
+
+            <label for="stockLevel">Stock Level:</label>
+            <input type="text" id="stockLevel" name="stockLevel" required><br>
+
+            <input type="submit" value="Create Product">
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#createProductForm').submit(function (event) {
+                event.preventDefault();
+
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: '/add_product',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        $('#main').html(response);
+                        loadContent('/products'); // Reload products.html
+                    }
+                });
+            });
+        });
+
+        function loadContent(url) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function (response) {
+                    $('#content').html(response);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
