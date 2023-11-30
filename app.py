@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from models import Users, db
+from models import Product  # Import the Product model
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Change this to a secret key of your choice
@@ -100,6 +101,31 @@ def update_user_page(username):
         return render_template('update_user.html', user=user)
     else:
         return 'User not found', 404
+
+# New routes for Products
+@app.route('/products')
+def products():
+    products = Product.query.all()
+    return render_template('products.html', products=products)
+
+@app.route('/create_product')
+def create_product():
+    return render_template('create_product.html')
+
+@app.route('/add_product', methods=['POST'])
+def add_product():
+    product_code = request.form['productCode']
+    name = request.form['name']
+    description = request.form['description']
+    unit_price = request.form['unitPrice']
+    stock_level = request.form['stockLevel']
+
+    new_product = Product(product_code=product_code, name=name, description=description, unit_price=unit_price, stock_level=stock_level)
+    db.session.add(new_product)
+    db.session.commit()
+
+    return redirect(url_for('products'))
+
 
 if __name__ == '__main__':
     with app.app_context():

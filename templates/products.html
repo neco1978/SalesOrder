@@ -1,0 +1,112 @@
+<!-- products.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <style>
+        /* Your existing styles for products table */
+    </style>
+</head>
+<body>
+    <h2>Products</h2>
+
+    <table id="productsTable" class="display">
+        <thead>
+            <tr>
+                <th>Product Code</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Unit Price</th>
+                <th>Stock Level</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.product_code }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.description }}</td>
+                    <td>{{ product.unit_price }}</td>
+                    <td>{{ product.stock_level }}</td>
+                    <td class="actions">
+                        <!-- Add icons for update and delete actions -->
+                        <!-- Example: Use the existing update icon function for updating -->
+                        <div class="tooltip">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" title="Update"
+                                onclick="updateProduct('{{ product.product_code }}')">
+                                <path fill="currentColor" d="M16.678 4.998l-1.012-1.011-9.014 9.014 1.011 1.011zm3.326-2.242c.391-.39.391-1.023 0-1.414l-1.412-1.412c-.39-.39-1.024-.39-1.414 0L15.18 2.342l2.83 2.83 2.994-2.994zM21.956 0c-.553 0-1 .447-1 1s.447 1 1 1 1-.447 1-1-.447-1-1-1zm-2.242 3.326L1.53 20.192l-1.012-1.012L18.702 2.314zm2.121 2.12L3.65 22.314c-.39.39-1.024.39-1.414 0s-.39-1.023 0-1.413l16.777-16.777 2.83 2.83z"></path>
+                            </svg>
+                            <span class="tooltiptext">Update</span>
+                        </div>
+                        <div class="tooltip">
+                            <!-- Add delete icon function for deleting -->
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" title="Delete"
+                                onclick="confirmDeleteProduct('{{ product.product_code }}')">
+                                <path fill="currentColor" d="M19.738 5.348l-1.085-1.086-1.949 1.948 1.085 1.086zM3 19V5h6v2H5v12h12v-6h2v6c0 1.104-.896 2-2 2H5c-1.104 0-2-.896-2-2zm16-2h-2V7H9v2h8v8z"></path>
+                            </svg>
+                            <span class="tooltiptext">Delete</span>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="javascript:void(0)" onclick="loadContent('/create_product')">Create Product</a>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#productsTable').DataTable({
+                deferRender: true
+            });
+        });
+
+        function updateProduct(productCode) {
+             // Make an AJAX request to fetch the product details
+             $.ajax({
+                url: `/update_product/${productCode}`,  // Update the URL endpoint according to your app
+                type: 'GET',
+                success: function(response) {
+                     // Load the update_product.html page with the fetched product details
+                     loadUpdateProductPage(response);
+                },
+                error: function(error) {
+                    console.error(`Error fetching product details: ${error}`);
+                }
+            });
+        }
+
+        function loadUpdateProductPage(productDetails) {
+            // Assuming you have a div with id 'content' to load the update_product.html content
+            $('#content').html(productDetails);
+
+            // You may need to initialize any scripts or event listeners for the update page here
+            // For example, if you have date pickers or other interactive components
+        }
+
+        function confirmDeleteProduct(productCode) {
+            if (confirm(`Are you sure you want to delete product ${productCode}?`)) {
+                // Make an AJAX request to delete the product
+                $.ajax({
+                    url: `/delete_product/${productCode}`,
+                    type: 'DELETE',
+                    success: function (response) {
+                        alert(`Product ${productCode} deleted successfully!`);
+                        loadContent('/products'); // Reload the products page to reflect changes
+                    },
+                    error: function (error) {
+                        alert(`Error deleting product ${productCode}: ${error}`);
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
