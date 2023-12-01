@@ -126,6 +126,54 @@ def add_product():
 
     return redirect(url_for('products'))
 
+#@app.route('/delete_product/<product_code>', methods=['DELETE'])
+#def delete_product(product_code):
+#    #product = Product.query.filter_by(product_code=product_code).first()
+#    product = session.get('product_code')
+#    if product:
+#        db.session.delete(product)
+#        db.session.commit()
+#        return jsonify(message='Product deleted successfully'), 200
+#    else:
+#        return jsonify(error='Product not found'), 404
+
+####
+@app.route('/delete_product/<product_code>', methods=['DELETE'])
+def delete_product(product_code):
+    product = Product.query.filter_by(product_code=product_code).first()
+    if product:
+        db.session.delete(product)
+        db.session.commit()
+        return 'Product deleted successfully', 200
+    else:
+        return 'Product not found', 404
+
+@app.route('/update_product/<product_code>')
+def update_product_page(product_code):
+    product = Product.query.filter_by(product_code=product_code).first()
+    if product:
+        return render_template('update_product.html', product=product)
+    else:
+        return 'Product not found', 404
+
+@app.route('/update_product', methods=['POST'])
+def update_product():
+    product_code = request.form['product_code']
+    name = request.form['name']
+    description = request.form['description']
+    unit_price = request.form['unit_price']
+    stock_level = request.form['stock_level']
+
+    product = Product.query.filter_by(product_code=product_code).first()
+    if product:
+        product.name = name
+        product.description = description
+        product.unit_price = unit_price
+        product.stock_level = stock_level
+        db.session.commit()
+        return redirect(url_for('products.html'))
+    else:
+        return 'Product not found', 404
 
 if __name__ == '__main__':
     with app.app_context():

@@ -20,6 +20,13 @@ class Product(db.Model):
     unit_price = db.Column(db.Numeric(10, 2))
     stock_level = db.Column(db.Integer)
 
+    def update_product(self, name, description, unit_price, stock_level):
+      self.name= name
+      self.description= description
+      self.unit_price= unit_price
+      self.stock_level= stock_level
+      db.session.commit()
+
     def __init__(self, product_code, name, description, unit_price, stock_level):
         self.product_code = product_code
         self.name = name
