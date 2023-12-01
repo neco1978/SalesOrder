@@ -1,12 +1,13 @@
-<!-- create_product.html -->
+<!-- create_customer.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Product</title>
+    <title>Create Customer</title>
     <style>
-         body {
+        body {
             font-family: Arial, sans-serif;
             display: flex;
         }
@@ -23,7 +24,8 @@
         }
 
         input[type="text"],
-        input[type="password"] {
+        input[type="email"],
+        input[type="tel"] {
             width: 100%;
             padding: 8px;
             margin-bottom: 10px;
@@ -40,52 +42,43 @@
         input[type="submit"]:hover {
             background-color: #444;
         }
-
-        .role-select {
-           width: 100%;
-           padding: 8px;
-           margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
     <div id="main">
-        <h2>Create Product</h2>
-        <form id="createProductForm">
-            <label for="productCode">Product Code:</label>
-            <input type="text" id="productCode" name="productCode" required><br>
-
+        <h2>Create Customer</h2>
+        <form id="createCustomerForm">
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" required><br>
 
-            <label for="description">Description:</label>
-            <textarea id="description" name="description" required></textarea><br>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br>
 
-            <label for="unitPrice">Unit Price:</label>
-            <input type="text" id="unitPrice" name="unitPrice" required><br>
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address" required><br>
 
-            <label for="stockLevel">Stock Level:</label>
-            <input type="text" id="stockLevel" name="stockLevel" required><br>
+            <label for="phone">Phone:</label>
+            <input type="tel" id="phone" name="phone" required><br>
 
-            <input type="submit" value="Create Product">
+            <input type="submit" value="Create Customer">
         </form>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
-            $('#createProductForm').submit(function (event) {
+            $('#createCustomerForm').submit(function (event) {
                 event.preventDefault();
 
                 var formData = $(this).serialize();
 
                 $.ajax({
-                    url: '/add_product',
+                    url: '/add_customer',
                     type: 'POST',
                     data: formData,
                     success: function (response) {
                         $('#main').html(response);
-                        loadContent('/products'); // Reload products.html
+                        loadContent('/customers'); // Reload customers.html
                     }
                 });
             });

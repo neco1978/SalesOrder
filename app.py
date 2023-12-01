@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from models import Users, db
-from models import Product  # Import the Product model
+from models import Users, Product, Customers, db
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Change this to a secret key of your choice
@@ -33,6 +32,15 @@ def menu():
     else:
         return redirect(url_for('login'))
 
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    session.pop('role', None)
+    return redirect(url_for('login'))
+
+################################################
+### USERS
+################################################
 @app.route('/users')
 def users():
     # Assuming you have a User model defined in models.py from models import User
@@ -41,28 +49,6 @@ def users():
     users = Users.query.all()
 
     return render_template('users.html', users=users)
-
-@app.route('/delete_user/<username>', methods=['DELETE'])
-def delete_user(username):
-    # Get the currently logged-in username from the session
-    current_username = session.get('username')
-
-    if current_username == username:
-        return 'You cannot delete your own user account.', 403
-
-    user = Users.query.filter_by(username=username).first()
-    if user:
-        db.session.delete(user)
-        db.session.commit()
-        return 'User deleted successfully', 200
-    else:
-        return 'User not found', 404
-
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    session.pop('role', None)
-    return redirect(url_for('login'))
 
 @app.route('/create_user')
 def create_user():
@@ -81,6 +67,22 @@ def add_user():
 
     return redirect(url_for('users'))
     #return render_template('menu.html')
+
+@app.route('/delete_user/<username>', methods=['DELETE'])
+def delete_user(username):
+    # Get the currently logged-in username from the session
+    current_username = session.get('username')
+
+    if current_username == username:
+        return 'You cannot delete your own user account.', 403
+
+    user = Users.query.filter_by(username=username).first()
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        return 'User deleted successfully', 200
+    else:
+        return 'User not found', 404
 
 @app.route('/update_user/<username>', methods=['POST'])
 def update_user(username):
@@ -102,7 +104,9 @@ def update_user_page(username):
     else:
         return 'User not found', 404
 
-# New routes for Products
+################################################
+### PRODUCTS
+################################################
 @app.route('/products')
 def products():
     products = Product.query.all()
@@ -125,6 +129,95 @@ def add_product():
     db.session.commit()
 
     return redirect(url_for('products'))
+
+@app.route('/delete_product/<product_code>', methods=['DELETE'])
+def delete_product(product_code):
+    product = Product.query.filter_by(product_code=product_code).first()
+    if product:
+        db.session.delete(product)
+        db.session.commit()
+        return 'Product deleted successfully', 200
+    else:
+        return 'Product not found', 404
+
+@app.route('/update_product/<product_code>')
+def update_product_page(product_code):
+    product = Product.query.filter_by(product_code=product_code).first()
+    if product:
+        return render_template('update_product.html', product=product)
+    else:
+        return 'Product not found', 404
+
+@app.route('/update_product/<product_code>', methods=['POST'])
+def update_product(product_code):
+    name = request.form['productName']
+    description = request.form['productDescription']
+    unit_price = request.form['unitPrice']
+    stock_level = request.form['stockLevel']
+
+    product = Product.query.filter_by(product_code=product_code).first()
+    if product:
+        product.update_product(name, description, unit_price, stock_level)
+        return 'Product updated successfully', 200
+    else:
+        return 'Product not found', 404
+
+################################################
+### CUSTOMERS
+################################################
+@app.route('/customers')
+def customers():
+    customers_list = Customers.query.all()
+    return render_template('customers.html', customers=customers_list)
+
+@app.route('/create_customer')
+def create_customer():
+    return render_template('create_customer.html')
+
+@app.route('/add_customer', methods=['POST'])
+def add_customer():
+    name = request.form['name']
+    email = request.form['email']
+    address = request.form['address']
+    phone = request.form['phone']
+
+    new_customer = Customers(name=name, email=email, address=address, phone=phone)
+    db.session.add(new_customer)
+    db.session.commit()
+
+    return redirect(url_for('customers'))
+
+@app.route('/update_customer/<int:customer_id>', methods=['POST'])
+def update_customer(customer_id):
+    name = request.form['name']
+    email = request.form['email']
+    address = request.form['address']
+    phone = request.form['phone']
+
+    customer = Customers.query.get(customer_id)
+    if customer:
+        customer.update_customer(name, email, address, phone)
+        return 'Customer updated successfully', 200
+    else:
+        return 'Customer not found', 404
+
+@app.route('/update_customer/<int:customer_id>')
+def update_customer_page(customer_id):
+    customer = Customers.query.get(customer_id)
+    if customer:
+        return render_template('update_customer.html', customer=customer)
+    else:
+        return 'Customer not found', 404
+
+@app.route('/delete_customer/<int:customer_id>', methods=['DELETE'])
+def delete_customer(customer_id):
+    customer = Customers.query.get(customer_id)
+    if customer:
+        db.session.delete(customer)
+        db.session.commit()
+        return 'Customer deleted successfully', 200
+    else:
+        return 'Customer not found', 404
 
 
 if __name__ == '__main__':
