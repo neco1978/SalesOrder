@@ -53,3 +53,40 @@ class Customers(db.Model):
         self.email = email
         self.address = address
         self.phone = phone
+
+class Sales_Order(db.Model):
+    __tablename__ = 'sales_order'
+
+    order_id = db.Column(db.Integer, primary_key=True)
+    order_date = db.Column(db.Date)
+    order_number = db.Column(db.String(50), unique=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    customer = db.relationship('Customers', backref='orders')
+
+    def __init__(self, order_date, order_number, customer_id):
+        self.order_date = order_date
+        self.order_number = order_number
+        self.customer_id = customer_id
+
+    def update_order(self, order_date, order_number, customer_id):
+        self.order_date = order_date
+        self.order_number = order_number
+        self.customer_id = customer_id
+        db.session.commit()
+
+class Sales_Order_Details(db.Model):
+    __tablename__ = 'sales_order_details'
+
+    detail_id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('Sales_Order.order_id'))
+    product_code = db.Column(db.String(50), db.ForeignKey('product.product_code'))
+    quantity = db.Column(db.Integer)
+
+    def __init__(self, order_id, product_code, quantity):
+        self.order_id = order_id
+        self.product_code = product_code
+        self.quantity = quantity
+
+    def update_order_detail(self, quantity):
+        self.quantity = quantity
+        db.session.commit()
