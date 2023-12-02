@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+</head>
+<body>
+    <h2>Orders</h2>
+
+    <table id="ordersTable" class="display">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Order Date</th>
+                <th>Order Number</th>
+                <th>Customer</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Loop through orders and populate the table -->
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.order_id }}</td>
+                    <td>{{ order.order_date }}</td>
+                    <td>{{ order.order_number }}</td>
+                    <td>{{ order.customer_name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+
+    <h2>Order Details</h2>
+
+    <table id="orderDetailsTable" class="display">
+        <thead>
+            <tr>
+                <th>Product Code</th>
+                <th>Product Name</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Order details will be loaded here when an order is clicked -->
+        </tbody>
+    </table>
+
+    <a href="javascript:void(0)" onclick="loadContent('/create_order')">Create Order</a>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Initialize the DataTable for orders
+            var ordersTable = $('#ordersTable').DataTable();
+
+            // Event listener for row click to load order details
+            $('#ordersTable tbody').on('click', 'tr', function () {
+                var data = ordersTable.row(this).data();
+                var orderId = data[0]; // Assuming the first column is the order ID
+                loadOrderDetails(orderId);
+            });
+
+            // Initialize the DataTable for order details
+            var orderDetailsTable = $('#orderDetailsTable').DataTable();
+        });
+
+        function loadOrderDetails(orderId) {
+            // Make an AJAX request to fetch order details based on the selected order ID
+            $.ajax({
+                url: `/get_order_details/${orderId}`,  // Replace with your actual route
+                type: 'GET',
+                success: function (response) {
+                    // Populate the order details table with the fetched data
+                    var orderDetailsTable = $('#orderDetailsTable').DataTable();
+                    orderDetailsTable.clear().rows.add(response).draw();
+                },
+                error: function (error) {
+                    console.error(`Error fetching order details: ${error}`);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

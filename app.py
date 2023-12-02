@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from models import Users, Product, Customers, db
+from models import Users, Product, Customers, Sales_Order, Sales_Order_Details, db
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Change this to a secret key of your choice
@@ -219,6 +219,76 @@ def delete_customer(customer_id):
     else:
         return 'Customer not found', 404
 
+
+################################################
+### ORDERS
+################################################
+# ... (Existing imports and configurations)
+
+# Route for handling orders
+@app.route('/orders')
+def orders():
+    existing_orders = Sales_Order.query.all()
+    return render_template('orders.html', orders=existing_orders)
+
+@app.route('/create_order')
+def create_order():
+    return render_template('create_order.html')
+
+# Route for creating a new order
+@app.route('/add_order', methods=['GET', 'POST'])
+def add_order():
+    if request.method == 'POST':
+        # Extract form data
+        order_date = request.form['order_date']
+        order_number = request.form['order_number']
+        customer_id = request.form['customer_id']
+
+        # Create a new order
+        new_order = Sales_Order(order_date=order_date, order_number=order_number, customer_id=customer_id)
+        db.session.add(new_order)
+        db.session.commit()
+
+        return redirect(url_for('orders'))
+
+    # Fetch customers for dropdown
+    customers = Customers.query.all()
+    return render_template('create_order.html', customers=customers)
+
+# Route for updating an existing order
+@app.route('/update_order/<int:order_id>', methods=['GET', 'POST'])
+def update_order(order_id):
+    order = Sales_Order.query.get(order_id)
+
+    if request.method == 'POST':
+        # Update order details
+        order_date = request.form['order_date']
+        order_number = request.form['order_number']
+        customer_id = request.form['customer_id']
+
+        order.update_order(order_date, order_number, customer_id)
+        return redirect(url_for('orders'))
+
+    # Fetch customers for dropdown
+    customers = Customers.query.all()
+    return render_template('update_order.html', order=order, customers=customers)
+
+# Route for deleting an order
+@app.route('/delete_order/<int:order_id>', methods=['DELETE'])
+def delete_order(order_id):
+    order = Sales_Order.query.get(order_id)
+    if order:
+        db.session.delete(order)
+        db.session.commit()
+        return 'Order deleted successfully', 200
+    else:
+        return 'Order not found', 404
+
+# Route for getting order details
+@app.route('/get_order_details/<int:order_id>')
+def get_order_details(order_id):
+    order_details = Sales_Order_Details.query.filter_by(order_id=order_id).all()
+    return render_template('order_details.html', order_details=order_details)
 
 if __name__ == '__main__':
     with app.app_context():

@@ -15,11 +15,12 @@ CREATE TABLE product (
 );
 
 -- Create Customer Table
-CREATE TABLE customer (
-    name VARCHAR(100) PRIMARY KEY,
+CREATE TABLE customers (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) UNIQUE,
+    email VARCHAR(120) UNIQUE,
     address TEXT,
-    contact_details TEXT,
-    order_history TEXT[]
+    phone VARCHAR(15)
 );
 
 -- Create Sales Order Table
@@ -27,7 +28,8 @@ CREATE TABLE sales_order (
     order_id SERIAL PRIMARY KEY,
     order_date DATE,
     order_number VARCHAR(50) UNIQUE,
-    customer_name VARCHAR(100)
+    customer_id INTEGER,
+    FOREIGN KEY (customer_id) REFERENCES customers(id)
 );
 
 -- Create Sales Order Details Table
@@ -36,7 +38,6 @@ CREATE TABLE sales_order_details (
     order_id INTEGER,
     product_code VARCHAR(50),
     quantity INTEGER,
-    price DECIMAL(10,2),
     FOREIGN KEY (order_id) REFERENCES sales_order(order_id),
     FOREIGN KEY (product_code) REFERENCES product(product_code)
 );
