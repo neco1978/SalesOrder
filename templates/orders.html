@@ -16,6 +16,7 @@
                 <th>Order Date</th>
                 <th>Order Number</th>
                 <th>Customer</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -25,7 +26,11 @@
                     <td>{{ order.order_id }}</td>
                     <td>{{ order.order_date }}</td>
                     <td>{{ order.order_number }}</td>
-                    <td>{{ order.customer_name }}</td>
+                    <td>{{ order.customer.name }}</td>
+                    <td class="actions">
+                        <a href="javascript:void(0)" class="delete" onclick="confirmDeleteOrder('{{ order.order_id }}')">Delete</a>
+                        <a href="javascript:void(0)" class="update" onclick="updateOrder('{{ order.order_id }}')">Update</a>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -45,6 +50,14 @@
         </thead>
         <tbody>
             <!-- Order details will be loaded here when an order is clicked -->
+            <!-- Loop through orders and populate the table -->
+            {% for order in order_details %}
+                <tr>
+                    <td>{{ order.product_code }}</td>
+                    <td>{{ order.product.name }}</td>
+                    <td>{{ order.quantity }}</td>
+                 </tr>
+            {% endfor %}
         </tbody>
     </table>
 
@@ -75,15 +88,51 @@
                 url: `/get_order_details/${orderId}`,  // Replace with your actual route
                 type: 'GET',
                 success: function (response) {
-                    // Populate the order details table with the fetched data
+                    console.log('Order details response:', response);
+
+                    // Clear the existing rows in the order details table
                     var orderDetailsTable = $('#orderDetailsTable').DataTable();
-                    orderDetailsTable.clear().rows.add(response).draw();
+                    orderDetailsTable.clear().draw();
+
+                    // Populate the order details table with the fetched data
+                    var tbody = $('#orderDetailsTable tbody');
+                    response.forEach(function (detail) {
+                        var row = `<tr>
+                                        <td>${detail.product_code}</td>
+                                        <td>${detail.product_name}</td>
+                                        <td>${detail.quantity}</td>
+                                    </tr>`;
+                        tbody.append(row);
+                    });
                 },
                 error: function (error) {
                     console.error(`Error fetching order details: ${error}`);
                 }
             });
         }
+
+        function confirmDeleteOrder(orderId) {
+            if (confirm('Are you sure you want to delete this order?')) {
+                // Make an AJAX request to delete the order
+                $.ajax({
+                    url: `/delete_order/${orderId}`,  // Replace with your actual route
+                    type: 'DELETE',
+                    success: function () {
+                        // Reload the page or update the DataTable after successful deletion
+                        location.reload(); // You can replace this with DataTable update logic
+                    },
+                    error: function (error) {
+                        console.error(`Error deleting order: ${error}`);
+                    }
+                });
+            }
+        }
+
+        function updateOrder(orderId) {
+            // Redirect to the update order page or implement your update logic
+            window.location.href = `/update_order/${orderId}`;
+        }
+
     </script>
 </body>
 </html>

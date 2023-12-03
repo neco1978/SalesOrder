@@ -66,3 +66,7 @@ insert into users(username, password, role) values('nevzat','password','ADMIN');
 insert into users(username, password, role) values('mehmet','password','ADMIN');
 insert into users(username, password, role) values('jack','password','MONITORING');
 insert into users(username, password, role) values('adam','password','USER');
+
+insert into sales_order (order_date, order_number, customer_id)  values(current_date, 'SD00013',2);
+
+insert into sales_order_details (order_id, product_code, quantity) values (2, 100, 8);
