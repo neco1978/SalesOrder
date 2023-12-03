@@ -229,31 +229,61 @@ def delete_customer(customer_id):
 @app.route('/orders')
 def orders():
     existing_orders = Sales_Order.query.all()
-    return render_template('orders.html', orders=existing_orders)
+    order_details = Sales_Order_Details.query.all()
+    return render_template('orders.html', orders=existing_orders, order_details=order_details)
 
 @app.route('/create_order')
 def create_order():
-    return render_template('create_order.html')
+    customers = Customers.query.all()
+    products = Product.query.all()
+    return render_template('create_order.html', customers=customers, products=products)
 
 # Route for creating a new order
-@app.route('/add_order', methods=['GET', 'POST'])
-def add_order():
-    if request.method == 'POST':
-        # Extract form data
-        order_date = request.form['order_date']
-        order_number = request.form['order_number']
-        customer_id = request.form['customer_id']
+# @app.route('/add_order', methods=['GET', 'POST'])
+# def add_order():
+#    if request.method == 'POST':
+#        # Extract form data
+#        order_date = request.form['order_date']
+#        order_number = request.form['order_number']
+#        customer_id = request.form['customer_id']
 
         # Create a new order
-        new_order = Sales_Order(order_date=order_date, order_number=order_number, customer_id=customer_id)
-        db.session.add(new_order)
-        db.session.commit()
+#        new_order = Sales_Order(order_date=order_date, order_number=order_number, customer_id=customer_id)
+#        db.session.add(new_order)
+#        db.session.commit()
 
-        return redirect(url_for('orders'))
+#        return redirect(url_for('orders'))
 
     # Fetch customers for dropdown
-    customers = Customers.query.all()
-    return render_template('create_order.html', customers=customers)
+#    customers = Customers.query.all()
+#    return render_template('create_order.html', customers=customers)
+
+@app.route('/add_order', methods=['POST'])
+def add_order():
+    # Extract form data
+    order_date = request.form['order_date']
+    order_number = request.form['order_number']
+    customer_id = request.form['customer_id']
+    product_codes = request.form.getlist('product_codes[]')
+    quantities = request.form.getlist('quantities[]')
+
+    # Create a new order
+    new_order = Sales_Order(order_date=order_date, order_number=order_number, customer_id=customer_id)
+    db.session.add(new_order)
+    db.session.commit()
+
+    #order_id = new_order.order_id #
+    order_id = Sales_Order.query.filter_by(order_number=order_number)[0].order_id
+    print(f"order id is : {order_id}")
+
+    # Add order details
+    for product_code, quantity in zip(product_codes, quantities):
+        order_detail = Sales_Order_Details(order_id=order_id, product_code=product_code, quantity=quantity)
+        db.session.add(order_detail)
+
+    db.session.commit()
+
+    return redirect(url_for('orders'))
 
 # Route for updating an existing order
 @app.route('/update_order/<int:order_id>', methods=['GET', 'POST'])
@@ -288,7 +318,7 @@ def delete_order(order_id):
 @app.route('/get_order_details/<int:order_id>')
 def get_order_details(order_id):
     order_details = Sales_Order_Details.query.filter_by(order_id=order_id).all()
-    return render_template('order_details.html', order_details=order_details)
+    return render_template('orders.html', order_details=order_details)
 
 if __name__ == '__main__':
     with app.app_context():

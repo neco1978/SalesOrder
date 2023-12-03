@@ -60,8 +60,10 @@ class Sales_Order(db.Model):
     order_id = db.Column(db.Integer, primary_key=True)
     order_date = db.Column(db.Date)
     order_number = db.Column(db.String(50), unique=True)
-    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    #customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    customer_id = db.Column(db.Integer, db.ForeignKey(Customers.id))
     customer = db.relationship('Customers', backref='orders')
+    #order_details = db.relationship('Sales_Order_Details', backref='orders', lazy='dynamic')
 
     def __init__(self, order_date, order_number, customer_id):
         self.order_date = order_date
@@ -78,8 +80,10 @@ class Sales_Order_Details(db.Model):
     __tablename__ = 'sales_order_details'
 
     detail_id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('Sales_Order.order_id'))
-    product_code = db.Column(db.String(50), db.ForeignKey('product.product_code'))
+    order_id = db.Column(db.Integer, db.ForeignKey(Sales_Order.order_id))
+    #product_code = db.Column(db.String(50), db.ForeignKey('product.product_code'))
+    product_code = db.Column(db.String(50), db.ForeignKey(Product.product_code))
+    product = db.relationship('Product', backref='orderdetails')
     quantity = db.Column(db.Integer)
 
     def __init__(self, order_id, product_code, quantity):
