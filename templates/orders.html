@@ -96,7 +96,7 @@
 
                     // Populate the order details table with the fetched data
                     var tbody = $('#orderDetailsTable tbody');
-                    response.forEach(function (detail) {
+                    $(response).forEach(function (detail) {
                         var row = `<tr>
                                         <td>${detail.product_code}</td>
                                         <td>${detail.product_name}</td>
@@ -119,10 +119,11 @@
                     type: 'DELETE',
                     success: function () {
                         // Reload the page or update the DataTable after successful deletion
-                        location.reload(); // You can replace this with DataTable update logic
+                        alert(`Order #${orderId} deleted successfully!`);
+                        loadContent('/orders');
                     },
                     error: function (error) {
-                        console.error(`Error deleting order: ${error}`);
+                        console.error(`Error deleting order #${orderId}: ${error}`);
                     }
                 });
             }
@@ -133,6 +134,15 @@
             window.location.href = `/update_order/${orderId}`;
         }
 
+        function loadContent(url) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function (response) {
+                    $('#content').html(response);
+                }
+            });
+        }
     </script>
 </body>
 </html>
