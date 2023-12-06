@@ -43,49 +43,50 @@
     </style>
 </head>
 <body>
-    <h2>Create Order</h2>
+     <div id="main">
+        <!-- <form action="/add_order" method="POST"> -->
+         <h2>Create Order</h2>
 
-    <form action="/add_order" method="POST">
-        <!-- Order Date -->
-        <label for="order_date">Order Date:</label>
-        <input type="date" id="order_date" name="order_date" required>
-        <br>
+        <form id="createOrderForm">
+            <!-- Order Date -->
+            <label for="order_date">Order Date:</label>
+            <input type="date" id="order_date" name="order_date" required>
+            <br>
 
-        <!-- Order Number -->
-        <label for="order_number">Order Number:</label>
-        <input type="text" id="order_number" name="order_number" required>
-        <br>
+            <!-- Order Number -->
+            <label for="order_number">Order Number:</label>
+            <input type="text" id="order_number" name="order_number" required>
+            <br>
 
-        <!-- Customer -->
-        <label for="customer_id">Customer:</label>
-        <select id="customer_id" name="customer_id" required>
-            {% for customer in customers %}
-                <option value="{{ customer.id }}">{{ customer.name }}</option>
-            {% endfor %}
-        </select>
-        <br>
+            <!-- Customer -->
+            <label for="customer_id">Customer:</label>
+            <select id="customer_id" name="customer_id" required>
+                {% for customer in customers %}
+                    <option value="{{ customer.id }}">{{ customer.name }}</option>
+                {% endfor %}
+            </select>
+            <br>
 
-        <!-- Order Details -->
-        <h3>Order Details</h3>
-        <table id="orderDetailsTable">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Rows for entering order details will be added dynamically -->
-            </tbody>
-        </table>
-        <br>
-        <button type="button" onclick="addOrderDetailRow()">Add Product</button>
-        <br>
+            <!-- Order Details -->
+            <h3>Order Details</h3>
+            <button type="button" onclick="addOrderDetailRow()">Add Product</button>
+            <br>
+            <table id="orderDetailsTable">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows for entering order details will be added dynamically -->
+                </tbody>
+            </table>
 
-        <!-- Submit Button -->
-        <button type="submit">Create Order</button>
-    </form>
-
+            <!-- Submit Button -->
+            <button type="submit">Create Order</button>
+        </form>
+    </div>
     <!-- Add your scripts if needed -->
 
     <script>
@@ -113,6 +114,34 @@
             quantityInput.name = "quantities[]";
             quantityInput.required = true;
             quantityCell.appendChild(quantityInput);
+        }
+
+        $(document).ready(function () {
+            $('#createOrderForm').submit(function (event) {
+                event.preventDefault();
+
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: '/add_order',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        $('#main').html(response);
+                        loadContent('/orders'); // Reload customers.html
+                    }
+                });
+            });
+        });
+
+        function loadContent(url) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function (response) {
+                    $('#content').html(response);
+                }
+            });
         }
     </script>
 </body>

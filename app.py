@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from models import Users, Product, Customers, Sales_Order, Sales_Order_Details, db
+from sqlalchemy.orm import exc
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Change this to a secret key of your choice
@@ -223,8 +224,6 @@ def delete_customer(customer_id):
 ################################################
 ### ORDERS
 ################################################
-# ... (Existing imports and configurations)
-
 # Route for handling orders
 @app.route('/orders')
 def orders():
@@ -237,26 +236,6 @@ def create_order():
     customers = Customers.query.all()
     products = Product.query.all()
     return render_template('create_order.html', customers=customers, products=products)
-
-# Route for creating a new order
-# @app.route('/add_order', methods=['GET', 'POST'])
-# def add_order():
-#    if request.method == 'POST':
-#        # Extract form data
-#        order_date = request.form['order_date']
-#        order_number = request.form['order_number']
-#        customer_id = request.form['customer_id']
-
-        # Create a new order
-#        new_order = Sales_Order(order_date=order_date, order_number=order_number, customer_id=customer_id)
-#        db.session.add(new_order)
-#        db.session.commit()
-
-#        return redirect(url_for('orders'))
-
-    # Fetch customers for dropdown
-#    customers = Customers.query.all()
-#    return render_template('create_order.html', customers=customers)
 
 @app.route('/add_order', methods=['POST'])
 def add_order():
@@ -272,9 +251,9 @@ def add_order():
     db.session.add(new_order)
     db.session.commit()
 
-    #order_id = new_order.order_id #
-    order_id = Sales_Order.query.filter_by(order_number=order_number)[0].order_id
-    print(f"order id is : {order_id}")
+    order_id = new_order.order_id
+    #order_id = Sales_Order.query.filter_by(order_number=order_number)[0].order_id
+    #print(f"order id is : {order_id}")
 
     # Add order details
     for product_code, quantity in zip(product_codes, quantities):
@@ -284,6 +263,7 @@ def add_order():
     db.session.commit()
 
     return redirect(url_for('orders'))
+
 
 # Route for updating an existing order
 @app.route('/update_order/<int:order_id>', methods=['GET', 'POST'])
@@ -307,12 +287,44 @@ def update_order(order_id):
 @app.route('/delete_order/<int:order_id>', methods=['DELETE'])
 def delete_order(order_id):
     order = Sales_Order.query.get(order_id)
+
     if order:
-        db.session.delete(order)
-        db.session.commit()
-        return 'Order deleted successfully', 200
+        try:
+            # Delete associated details first
+            for detail in order.details:
+                db.session.delete(detail)
+
+            # Then delete the order
+            db.session.delete(order)
+            db.session.commit()
+            return 'Order deleted successfully', 200
+
+        except exc.IntegrityError:
+            db.session.rollback()
+            return 'IntegrityError: Cannot delete order with associated details', 500
+
     else:
         return 'Order not found', 404
+
+
+# Route for deleting an order
+#@app.route('/delete_order/<int:order_id>', methods=['DELETE'])
+#def delete_order(order_id):
+#    order_details = Sales_Order_Details.query.get(order_id)
+#    if order_details:
+#        db.session.delete(order_details)
+#        db.session.commit()
+#        return 'Order details deleted successfully', 200
+#    else:
+#        print('Order details not found')
+
+#    order = Sales_Order.query.get(order_id)
+#    if order:
+#        db.session.delete(order)
+#        db.session.commit()
+#        return 'Order deleted successfully', 200
+#    else:
+#        return 'Order not found', 404
 
 # Route for getting order details
 @app.route('/get_order_details/<int:order_id>')
