@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from models import Users, Product, Customers, Sales_Order, Sales_Order_Details, db
 from sqlalchemy.orm import exc
+from flask import jsonify
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Change this to a secret key of your choice
@@ -327,10 +328,27 @@ def delete_order(order_id):
 #        return 'Order not found', 404
 
 # Route for getting order details
+#@app.route('/get_order_details/<int:order_id>')
+#def get_order_details(order_id):
+#    order_details = Sales_Order_Details.query.filter_by(order_id=order_id).all()
+#    return order_details #render_template('orders.html', order_details=order_details)
+
 @app.route('/get_order_details/<int:order_id>')
 def get_order_details(order_id):
     order_details = Sales_Order_Details.query.filter_by(order_id=order_id).all()
-    return render_template('orders.html', order_details=order_details)
+
+    # Convert order_details to a list of dictionaries with the desired fields
+    result = []
+    for detail in order_details:
+        result.append({
+            'product_code': detail.product_code,
+            'product_name': detail.product.name,
+            'quantity': detail.quantity
+        })
+
+    # Return the result as a JSON response
+    return jsonify(result)
+
 
 if __name__ == '__main__':
     with app.app_context():

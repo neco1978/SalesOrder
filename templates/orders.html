@@ -50,21 +50,13 @@
         </thead>
         <tbody>
             <!-- Order details will be loaded here when an order is clicked -->
-            <!-- Loop through orders and populate the table -->
-            {% for order in order_details %}
-                <tr>
-                    <td>{{ order.product_code }}</td>
-                    <td>{{ order.product.name }}</td>
-                    <td>{{ order.quantity }}</td>
-                 </tr>
-            {% endfor %}
         </tbody>
     </table>
 
     <a href="javascript:void(0)" onclick="loadContent('/create_order')">Create Order</a>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.js"></script>
 
     <script>
         $(document).ready(function () {
@@ -92,17 +84,10 @@
 
                     // Clear the existing rows in the order details table
                     var orderDetailsTable = $('#orderDetailsTable').DataTable();
-                    orderDetailsTable.clear().draw();
+                    orderDetailsTable.clear();
 
-                    // Populate the order details table with the fetched data
-                    var tbody = $('#orderDetailsTable tbody');
-                    $(response).forEach(function (detail) {
-                        var row = `<tr>
-                                        <td>${detail.product_code}</td>
-                                        <td>${detail.product_name}</td>
-                                        <td>${detail.quantity}</td>
-                                    </tr>`;
-                        tbody.append(row);
+                    $.each(response, function(i, detail) {
+                        orderDetailsTable.row.add([detail.product_code,detail.product_name,detail.quantity]).draw();
                     });
                 },
                 error: function (error) {
