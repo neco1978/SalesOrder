@@ -257,9 +257,23 @@ def add_order():
     #print(f"order id is : {order_id}")
 
     # Add order details
+    temp_order_details = []
+
     for product_code, quantity in zip(product_codes, quantities):
-        order_detail = Sales_Order_Details(order_id=order_id, product_code=product_code, quantity=quantity)
+        product = Product.query.filter_by(product_code=product_code).first()
+        if product and product.stock_level >= int(quantity):
+            temp_order_details.append((product, int(quantity)))
+        else:
+            return jsonify({'error': f'Insufficient stock for product code {product_code}'}), 400
+
+    for product, quantity in temp_order_details:
+        product.stock_level -= quantity
+        order_detail = Sales_Order_Details(order_id=order_id, product_code=product.product_code,quantity=quantity)
         db.session.add(order_detail)
+
+    #for product_code, quantity in zip(product_codes, quantities):
+    #    order_detail = Sales_Order_Details(order_id=order_id, product_code=product_code, quantity=quantity)
+    #    db.session.add(order_detail)
 
     db.session.commit()
 
@@ -306,32 +320,6 @@ def delete_order(order_id):
 
     else:
         return 'Order not found', 404
-
-
-# Route for deleting an order
-#@app.route('/delete_order/<int:order_id>', methods=['DELETE'])
-#def delete_order(order_id):
-#    order_details = Sales_Order_Details.query.get(order_id)
-#    if order_details:
-#        db.session.delete(order_details)
-#        db.session.commit()
-#        return 'Order details deleted successfully', 200
-#    else:
-#        print('Order details not found')
-
-#    order = Sales_Order.query.get(order_id)
-#    if order:
-#        db.session.delete(order)
-#        db.session.commit()
-#        return 'Order deleted successfully', 200
-#    else:
-#        return 'Order not found', 404
-
-# Route for getting order details
-#@app.route('/get_order_details/<int:order_id>')
-#def get_order_details(order_id):
-#    order_details = Sales_Order_Details.query.filter_by(order_id=order_id).all()
-#    return order_details #render_template('orders.html', order_details=order_details)
 
 @app.route('/get_order_details/<int:order_id>')
 def get_order_details(order_id):
