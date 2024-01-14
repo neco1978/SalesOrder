@@ -31,6 +31,7 @@ This is a simple Sales Order Management System implemented using Flask and Postg
 5. Set up the PostgreSQL database.
 - Create a database named `salesdb`.
 - Update the database connection URI in `app.py` to match your PostgreSQL configuration.
+- Run data_model.sql under the model directory to create required tables and data structure
 
 6. Run the application.
 
