@@ -247,15 +247,6 @@ def add_order():
     product_codes = request.form.getlist('product_codes[]')
     quantities = request.form.getlist('quantities[]')
 
-    # Create a new order
-    new_order = Sales_Order(order_date=order_date, order_number=order_number, customer_id=customer_id)
-    db.session.add(new_order)
-    db.session.commit()
-
-    order_id = new_order.order_id
-    #order_id = Sales_Order.query.filter_by(order_number=order_number)[0].order_id
-    #print(f"order id is : {order_id}")
-
     # Add order details
     temp_order_details = []
 
@@ -266,14 +257,17 @@ def add_order():
         else:
             return jsonify({'error': f'Insufficient stock for product code {product_code}'}), 400
 
+    # Create a new order
+    new_order = Sales_Order(order_date=order_date, order_number=order_number, customer_id=customer_id)
+    db.session.add(new_order)
+    db.session.commit()
+
+    order_id = new_order.order_id
+
     for product, quantity in temp_order_details:
         product.stock_level -= quantity
         order_detail = Sales_Order_Details(order_id=order_id, product_code=product.product_code,quantity=quantity)
         db.session.add(order_detail)
-
-    #for product_code, quantity in zip(product_codes, quantities):
-    #    order_detail = Sales_Order_Details(order_id=order_id, product_code=product_code, quantity=quantity)
-    #    db.session.add(order_detail)
 
     db.session.commit()
 

@@ -129,6 +129,10 @@
                     success: function (response) {
                         $('#main').html(response);
                         loadContent('/orders'); // Reload customers.html
+                    },
+                    error: function(response) {
+                        // Display error message
+                        alert(response.responseJSON.error);
                     }
                 });
             });
